@@ -29,20 +29,50 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
 
-    const usersCollection = client.db("powerlern").collection("user");
+    const usersCollection = client.db('powerlearn').collection('users')
+    const popularClassCollection=client.db('powerlearn').collection('popularclass')
+    const teacherCollection=client.db('powerlearn').collection('teacher')
+    const instructorCollection=client.db('powerlearn').collection('instructor')
 
-    
-     app.put('/user/:email',async (req,res)=>{
-      const email=req.params.email
-      const user=req.body
-      const query= {email:email}
-      const option={upsert:true}
-      const updateDoc={
-        $set:user
+
+  
+    //  save user 
+    app.put('/users/:email', async (req, res) => {
+      const email = req.params.email
+      const user = req.body
+      const query = { email: email }
+      const options = { upsert: true }
+      const updateDoc = {
+        $set: user,
       }
-      const result= await usersCollection.updateOne(query,option,updateDoc)
+      const result = await usersCollection.updateOne(query, updateDoc, options)
+      console.log(result)
       res.send(result)
-     })
+    })
+
+    // get users
+    app.get('/users/:email' , async(req,res)=>{
+        const result = await usersCollection.find({email: req.params.email }).toArray();
+        res.send(result);
+    })
+
+// class
+    app.get('/class',async(req,res)=>{
+      const result= await popularClassCollection.find().toArray()
+      res.send(result)
+    })
+// teacher
+app.get('/teacher',async(req,res)=>{
+  const result= await teacherCollection.find().toArray()
+  res.send(result)
+})
+// instructor api
+
+app.post("/postdata", async (req, res) => {
+  const body = req.body;
+  const result = await instructorCollection.insertOne(body);
+  res.send(result);
+});
 
 
 
@@ -51,7 +81,7 @@ async function run() {
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
-    await client.close();
+    // await client.close();
   }
 }
 run().catch(console.dir);
