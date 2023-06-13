@@ -125,6 +125,22 @@ app.get("/alldata", async(req,res)=>{
       res.send(result)
     })
 
+    app.put("/updaterole/:id",async(req, res) => {
+      const id = req.params.id;
+      const filter = {_id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updateDoc = req.body;
+      const update = {
+        $set: {
+          role: updateDoc.role,
+          
+        },
+      };
+      const result = await usersCollection.updateOne(filter, update, options);
+      res.send(result);
+    });
+
+
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
