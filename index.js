@@ -78,6 +78,9 @@ async function run() {
       const result = await instructorCollection.find({ instructoremail: req.params.email }).toArray();
       res.send(result);
     });
+
+
+
     // admin api
 app.get("/alldata", async(req,res)=>{
   const result=await instructorCollection.find().toArray();
@@ -114,6 +117,13 @@ app.get("/alldata", async(req,res)=>{
       const result = await instructorCollection.updateOne(filter, update, options);
       res.send(result);
     });
+
+
+    // admin Manage api
+    app.get("/adminmanage", async(req,res)=>{
+      const result=await usersCollection.find().toArray();
+      res.send(result)
+    })
 
 
     // Send a ping to confirm a successful connection
