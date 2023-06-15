@@ -8,7 +8,7 @@ require("dotenv").config();
 app.use(cors());
 app.use(express.json());
 
-const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId, Collection } = require("mongodb");
 const uri = `mongodb+srv://${process.env.ENV_DB_USER}:${process.env.ENV_DB_PASS}@cluster0.ph1akes.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -25,14 +25,22 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
 
+    // userCollection
     const usersCollection = client.db("powerlearn").collection("users");
-    const popularClassCollection = client
-      .db("powerlearn")
-      .collection("popularclass");
-    const teacherCollection = client.db("powerlearn").collection("teacher");
+    // Main api
     const instructorCollection = client
       .db("powerlearn")
       .collection("instructor");
+
+      // student Collection
+const studentsCollection = client.db("powerlearn").collection("student")
+
+    const popularClassCollection = client
+      .db("powerlearn")
+      .collection("popularclass");
+
+    const teacherCollection = client.db("powerlearn").collection("teacher");
+
 
     //  save user
     app.put("/users/:email", async (req, res) => {
@@ -53,6 +61,13 @@ async function run() {
       const result = await usersCollection
         .find({ email: req.params.email })
         .toArray();
+      res.send(result);
+    });
+
+    // approved class api
+    app.get("/approvedclass", async (req, res) => {
+      
+      const result = await instructorCollection.find({status:"approved"}).toArray();
       res.send(result);
     });
 
@@ -139,8 +154,24 @@ app.get("/alldata", async(req,res)=>{
       const result = await usersCollection.updateOne(filter, update, options);
       res.send(result);
     });
+//  student api
+app.post("/studentdata", async (req, res) => {
+  const body = req.body;
+  const result = await studentsCollection.insertOne(body);
+  res.send(result);
+});
 
 
+// student Course Collection api
+app.get("/studentdatas",async(req, res) => {
+  const email = req.query.email;
+    if (!email) {
+        res.send([]);
+      }
+      const query = { email:email };
+      const result = await studentsCollection.find(query).toArray();
+      res.send(result);
+})
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
